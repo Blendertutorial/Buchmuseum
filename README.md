@@ -3,7 +3,8 @@ Buchmodell_Blend4Web
 
 Die gleichnamige Blenderdatei enthält eine Beispielanwendung des Bookholder-Unterprojektes. Es bietet einige interaktive virtuelle Buchstützen+Bücher mit Wikipedia/-source-Anbindung.
 
-![Buchmodell_Blend4Web.png]
+![Ein kleiner Büchertisch](Buchmodell_Blend4Web.png)
+![... mit Wikipedia/-source Einblendung](Buchmodell_Blend4Web_2.png)
 
 
 Voraussetzungen
