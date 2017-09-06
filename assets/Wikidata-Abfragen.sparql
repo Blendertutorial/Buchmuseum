@@ -1,0 +1,55 @@
+Interessante Wikidata-Abfragen:
+
+SELECT ?item ?itemLabel ?article ?itemDescr WHERE {
+#  ?item wdt:P31 wd:Q7725634.				# ?item instance of literary work with...
+  ?item wdt:P373 "Sachsenspiegel".
+  ?item schema:description ?itemDescr.
+  ?article schema:about ?item.  			# ...?article http://schema.org/...
+  ?article schema:isPartOf <https://de.wikisource.org/>. # ...isPartOf https://de.wikisource.org/ 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 10
+
+
+# 10 Literarische Werke aus der Wikidata mit Wikisourceeintrag
+
+SELECT ?item ?itemLabel ?article WHERE {
+  ?item wdt:P31 wd:Q7725634.	# ?item instance of literary work with...
+  ?article schema:about ?item.  # ...?article http://schema.org/isPartOf https://de.wikisource.org/ 
+  ?article schema:isPartOf <https://de.wikisource.org/>.
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 10
+
+
+# 20 Werke aus der SLUB mit Bild und deutschspr. Bezeichnung (am besten als Graph)
+
+SELECT ?item ?itemLabel ?pic WHERE {
+  ?item wdt:P195 wd:Q323270.
+  OPTIONAL { ?item wdt:P18 ?pic. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 20
+
+# Hier als Link: https://query.wikidata.org/bigdata/namespace/wdq/sparql?query=SELECT%20%3Fitem%20%3FitemLabel%20%3Fpic%20WHERE%20%7B%0A%20%20%3Fitem%20wdt%3AP195%20wd%3AQ323270.%0A%20%20OPTIONAL%20%7B%20%3Fitem%20wdt%3AP18%20%3Fpic.%20%7D%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22de%22.%20%7D%0A%7D%0ALIMIT%2020%0A
+
+
+# 20 Literarische Werke mit Bild und deutschspr. Bezeichnung (als Bildertabelle)
+
+#defaultView:ImageGrid
+SELECT ?item ?itemLabel ?pic WHERE {
+  ?item wdt:P31 wd:Q7725634.
+  OPTIONAL { ?item wdt:P18 ?pic. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 20
+
+#Countries that have a Featured Article on German Wikipedia
+SELECT ?sitelink ?itemLabel WHERE {
+  ?item wdt:P31 wd:Q6256.
+  ?sitelink schema:isPartOf <https://de.wikipedia.org/>;
+     schema:about ?item;
+     wikibase:badge wd:Q17437796 . # Sitelink is badged as a Featured Article
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "de" } .
+}  ORDER BY ?itemLabel
+
