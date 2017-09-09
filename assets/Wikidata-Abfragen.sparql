@@ -1,0 +1,164 @@
+Interessante Wikidata-Abfragen:
+
+SELECT ?item ?itemLabel ?article ?itemDescr WHERE {
+#  ?item wdt:P31 wd:Q7725634.				# ?item instance of literary work with...
+  ?item wdt:P373 "Sachsenspiegel".
+  ?item schema:description ?itemDescr.
+  ?article schema:about ?item.  			# ...?article http://schema.org/...
+  ?article schema:isPartOf <https://de.wikisource.org/>. # ...isPartOf https://de.wikisource.org/ 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 10
+
+
+# 10 Literarische Werke aus der Wikidata mit Wikisourceeintrag
+
+SELECT ?item ?itemLabel ?article WHERE {
+  ?item wdt:P31 wd:Q7725634.	# ?item instance of literary work with...
+  ?article schema:about ?item.  # ...?article http://schema.org/isPartOf https://de.wikisource.org/ 
+  ?article schema:isPartOf <https://de.wikisource.org/>.
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 10
+
+
+# 20 Werke aus der SLUB mit Bild und deutschspr. Bezeichnung (am besten als Graph)
+
+SELECT ?item ?itemLabel ?pic WHERE {
+  ?item wdt:P195 wd:Q323270.
+  OPTIONAL { ?item wdt:P18 ?pic. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 20
+
+# Hier als Link: https://query.wikidata.org/bigdata/namespace/wdq/sparql?query=SELECT%20%3Fitem%20%3FitemLabel%20%3Fpic%20WHERE%20%7B%0A%20%20%3Fitem%20wdt%3AP195%20wd%3AQ323270.%0A%20%20OPTIONAL%20%7B%20%3Fitem%20wdt%3AP18%20%3Fpic.%20%7D%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22de%22.%20%7D%0A%7D%0ALIMIT%2020%0A
+
+
+# 20 Literarische Werke mit Bild und deutschspr. Bezeichnung (als Bildertabelle)
+
+#defaultView:ImageGrid
+SELECT ?item ?itemLabel ?pic WHERE {
+  ?item wdt:P31 wd:Q7725634.
+  OPTIONAL { ?item wdt:P18 ?pic. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 20
+
+#Countries that have a Featured Article on German Wikipedia
+SELECT ?sitelink ?itemLabel WHERE {
+  ?item wdt:P31 wd:Q6256.
+  ?sitelink schema:isPartOf <https://de.wikipedia.org/>;
+     schema:about ?item;
+     wikibase:badge wd:Q17437796 . # Sitelink is badged as a Featured Article
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "de" } .
+}  ORDER BY ?itemLabel
+
+
+#Books or literary works published before 1830 with place of publication or narrative location coordinates
+#added before 2016-10
+SELECT ?subj ?label ?coord ?place
+WHERE
+{
+  {?subj wdt:P31 wd:Q571 } UNION {?subj wdt:P31 wd:Q7725634}.
+   ?subj wdt:P577 ?date FILTER (?date < "1830-01-01T00:00:00Z"^^xsd:dateTime) .
+  OPTIONAL { {?subj wdt:P291 ?place} UNION {?subj wdt:P840 ?place }.
+    ?place wdt:P625 ?coord }.
+   ?subj rdfs:label ?label filter (lang(?label) = "en")
+}
+
+# Orte mit freiem WLan:
+<iframe style="width: 80vw; height: 50vh; border: none;" src="https://query.wikidata.org/embed.html#%23defaultView%3AMap%0A%0ASelect%20%3FortMitFreiemWlan%20%3FortMitFreiemWlanLabel%20%3Fkoordinaten%20Where%20%7B%0A%0A%20%20%3FortMitFreiemWlan%20wdt%3AP2848%20wd%3AQ1543615.%0A%20%20%0A%20%20%3FortMitFreiemWlan%20wdt%3AP625%20%3Fkoordinaten.%0A%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22%5BAUTO_LANGUAGE%5D%2Cen%22.%20%7D%0A%0A%7D" referrerpolicy="origin" sandbox="allow-scripts allow-same-origin allow-popups" ></iframe>
+
+
+#Books by a given Author (Martin Luther) including genres, series, and publication year
+#added before 2016-10
+#defaultView:Timeline
+SELECT ?book ?bookLabel ?authorLabel ?genre_label ?series_label ?publicationDate WHERE {
+  ?author ?label "Martin Luther"@de.
+  ?book wdt:P31 wd:Q571.
+  ?book wdt:P50 ?author.
+  OPTIONAL {
+    ?book wdt:P136 ?genre.
+    ?genre rdfs:label ?genre_label.
+    FILTER((LANG(?genre_label)) = "de")
+  }
+  OPTIONAL {
+    ?book wdt:P179 ?series.
+    ?series rdfs:label ?series_label.
+    FILTER((LANG(?series_label)) = "de")
+  }
+  OPTIONAL { ?book wdt:P577 ?publicationDate. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+}
+LIMIT 50
+
+<iframe style="width: 80vw; height: 50vh; border: none;" src="https://query.wikidata.org/embed.html#%23Books%20by%20a%20given%20Author%20including%20genres%2C%20series%2C%20and%20publication%20year%0A%23added%20before%202016-10%0A%23defaultView%3ATimeline%0ASELECT%20%3Fbook%20%3FbookLabel%20%3FauthorLabel%20%3Fgenre_label%20%3Fseries_label%20%3FpublicationDate%20WHERE%20%7B%0A%20%20%3Fauthor%20%3Flabel%20%22Martin%20Luther%22%40de.%0A%20%20%3Fbook%20wdt%3AP31%20wd%3AQ571.%0A%20%20%3Fbook%20wdt%3AP50%20%3Fauthor.%0A%20%20OPTIONAL%20%7B%0A%20%20%20%20%3Fbook%20wdt%3AP136%20%3Fgenre.%0A%20%20%20%20%3Fgenre%20rdfs%3Alabel%20%3Fgenre_label.%0A%20%20%20%20FILTER%28%28LANG%28%3Fgenre_label%29%29%20%3D%20%22de%22%29%0A%20%20%7D%0A%20%20OPTIONAL%20%7B%0A%20%20%20%20%3Fbook%20wdt%3AP179%20%3Fseries.%0A%20%20%20%20%3Fseries%20rdfs%3Alabel%20%3Fseries_label.%0A%20%20%20%20FILTER%28%28LANG%28%3Fseries_label%29%29%20%3D%20%22de%22%29%0A%20%20%7D%0A%20%20OPTIONAL%20%7B%20%3Fbook%20wdt%3AP577%20%3FpublicationDate.%20%7D%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22de%22.%20%7D%0A%7D%0ALIMIT%2050" referrerpolicy="origin" sandbox="allow-scripts allow-same-origin allow-popups" ></iframe>
+
+
+#Gesetzesbücher
+#defaultView:Graph
+SELECT ?item ?itemLabel ?_image ?_subclass_of ?_subclass_ofLabel WHERE {
+  ?item wdt:P31 wd:Q2135500.
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de". }
+  OPTIONAL { ?item wdt:P279 ?_subclass_of. }
+  OPTIONAL { ?item wdt:P18 ?_image. }
+}
+LIMIT 50
+
+<iframe style="width: 80vw; height: 50vh; border: none;" src="https://query.wikidata.org/embed.html#%23Gesetzesb%C3%BCcher%0A%23defaultView%3AGraph%0ASELECT%20%3Fitem%20%3FitemLabel%20%3F_image%20%3F_subclass_of%20%3F_subclass_ofLabel%20WHERE%20%7B%0A%20%20%3Fitem%20wdt%3AP31%20wd%3AQ2135500.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22de%22.%20%7D%0A%20%20OPTIONAL%20%7B%20%3Fitem%20wdt%3AP279%20%3F_subclass_of.%20%7D%0A%20%20OPTIONAL%20%7B%20%3Fitem%20wdt%3AP18%20%3F_image.%20%7D%0A%7D%0ALIMIT%2050" referrerpolicy="origin" sandbox="allow-scripts allow-same-origin allow-popups" ></iframe>
+
+
+# Literatur von Luther für kartendarstellung (leider zu wenig Angaben)
+SELECT ?subj ?label ?coord ?place WHERE {
+  {  }
+  UNION
+  { ?subj wdt:P31 wd:Q7725634. }
+  ?subj wdt:P577 ?date.
+  OPTIONAL {
+    { ?subj wdt:P291 ?place. }
+    UNION
+    { ?subj wdt:P840 ?place. }
+    ?place wdt:P625 ?coord.
+  }
+  ?subj rdfs:label ?label.
+  FILTER((LANG(?label)) = "en")
+  ?subj wdt:P50 wd:Q9554.
+}
+LIMIT 50
+
+
+# Literatur mit Schlagwort Martin Luther
+#defaultView:Graph
+
+SELECT ?subj ?label ?place ?Ver_ffentlichungsdatum ?Name ?Bild ?NameLabel WHERE {
+  {  }
+  UNION
+  { ?subj wdt:P31 wd:Q7725634. }
+  ?subj wdt:P577 ?date.
+  OPTIONAL {
+    {  }
+    UNION
+    { ?subj wdt:P840 ?place. }
+    
+  }
+  ?subj rdfs:label ?label.
+  ?subj wdt:P921 wd:Q9554.
+  OPTIONAL { ?subj wdt:P577 ?Ver_ffentlichungsdatum. }
+  FILTER((LANG(?label)) = "de")
+  OPTIONAL { ?subj wdt:P1448 ?Name. }
+  OPTIONAL { ?subj wdt:P18 ?Bild. }
+}
+LIMIT 50
+# Literatur von Paul Otlet
+#defaultView:Graph
+SELECT ?subj ?label ?Bild ?Ver_ffentlichungsdatum ?geographische_Koordinaten WHERE {
+  {  }
+  UNION
+  { ?subj wdt:P31 wd:Q7725634. }
+  ?subj wdt:P577 ?date.
+  ?subj rdfs:label ?label.
+  ?subj wdt:P50 wd:Q1868.
+  OPTIONAL { ?subj wdt:P18 ?Bild. }
+  OPTIONAL { ?subj wdt:P291 ?Ver_ffentlichungsdatum. }
+  OPTIONAL { ?subj wdt:P625 ?geographische_Koordinaten. }
+}
