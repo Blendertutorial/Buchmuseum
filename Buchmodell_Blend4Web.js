@@ -221,16 +221,15 @@ function createNewAnchorDivObject([objectName]) {
     }
     
     var m_log_nodes = require("logic_nodes");
-    var cb_updateAnchorAnnotation = function([anchorObjectName, url_Wp, wikiContent_Wp, url_Ws, wikiContent_Ws, url_Wd, wikiContent_Wd]) {
+    var cb_updateAnchorAnnotation = function([anchorObjectName, url_Wp, wikiContent_Wp, url_Ws, wikiContent_Ws, wikiContent_Wd]) {
     console.log("Callback von cb_updateAnchorAnnotation.");
-    console.log("Parameter:"+ anchorObjectName +", "+ url_Wp +", "+ wikiContent_Wp +", "+ url_Ws +", "+ wikiContent_Ws +", "+ url_Wd +", "+ wikiContent_Wd);
+    console.log("Parameter:"+ anchorObjectName +", "+ url_Wp +", "+ wikiContent_Wp +", "+ url_Ws +", "+ wikiContent_Ws +", "+ wikiContent_Wd);
     
     var anchorObject = document.getElementById(anchorObjectName);
 
     var lemma_Wp = url_Wp.match(/^(.+\/)([^/?]+)(\?.*)$/)[2]; //  Copy the articlename with is between the url and the parameters
     var lemma_Ws = url_Ws.match(/^(.+\/)([^/?]+)(\?.*)$/)[2]; //  Copy the articlename with is between the url and the parameters
-    var lemma_Wd ; //* = url_Wd.match(/^(.+\/)([^/?]+)(\?.*)$/)[2];    //  Copy the articlename with is between the url and the parameters
-    console.log("lemma_Wp:" + lemma_Wp + ", lemma_Ws:" + lemma_Ws + ", lemma_Wd:" + lemma_Wd);
+    console.log("lemma_Wp:" + lemma_Wp + ", lemma_Ws:" + lemma_Ws); // Some debug-messages; WikiData is used as is (it should be an chart in an iFrame)
 
     var json_Wp = JSON.parse(wikiContent_Wp);
     // If there was no article downloaded/ found set an special message.
@@ -254,7 +253,6 @@ function createNewAnchorDivObject([objectName]) {
     }
     
     var json_Ws = JSON.parse(wikiContent_Ws);
-
     // If there was no article downloaded/ found set an special message.
     if (json_Ws == null ) { // Wikisourcearticle not found/ downloadproblem
         var WsText ="<details class=\"anchorannotationBody\"><summary><img src=\"assets/wikisource.png\" alt=\"Wikisource-Logo\" width=30 /></summary>" +
@@ -275,19 +273,16 @@ function createNewAnchorDivObject([objectName]) {
         setBookholderState([anchorObjectName, 2]);
     }
 
-//    var json_Wd = JSON.parse(wikiContent_Wd);   //* Wikidata is not (yet) JSON
+        // Wikidata will be viewed as a chart in an iFrame (this means: no download or parsing)
+        var WdText ="<details class=\"anchorannotationBody\"><summary><img src=\"assets/wikidata.png\" alt=\"Wikidata-Logo\" width=30 /></summary>" +
+                    "<article class=\"anchorannotationWikitext\"><header><h3>Diagrammtittel"+ " <small>(Typ"+ ")</small></h3></header>" +
+                    wikiContent_Wd +       // SPARQL per query.wikidata.org-iFrame eingebunden.
+                    "</article><div align=\"right\">(<a href=\"https://www.wikidata.org/wiki/Help:Contents\">Mitmachen</a>)</div>" +
+                    " <hr />" +
+                    "<footer> Diese Ansicht ist auf 50 Einträge begrenzt.</footer>" +
+                    " </details>";   
 
-        anchorObject.innerHTML = "<div class=\"anchorannotation\">" + WpText + WsText + "</div>";
-
-//* Wikidata is currently only Html and no JSON
-// "<details class=\"anchorannotationBody\"><summary><img src=\"assets/wikidata.png\" alt=\"Wikidata-Logo\" width=30 /></summary> \
-// <article class=\"anchorannotationWikitext\"><header><h3>"+ json_Wd.displaytitle +" <small>("+ json_Wd.description +")</small></h3></header> \
-// "+ json_Wd.sections[0].text +" \
-// </article><div align=\"right\">(<a href=\"https://de.m.wikidata.org/wiki/"+ json_Wd.displaytitle +"\">Weiterlesen</a> | <a href=\"https://de.m.wikidata.org/wiki/Diskussion:"+ json_Wd.displaytitle +"\">Feedback</a> | <a href=\"https://de.wikidata.org/wiki/Hilfe:%C3%9Cbersicht\">Mitmachen</a>)</div> \
-// <hr /> \
-// <footer>Quelle: <img src=\"assets/wikidata.png\" alt=\"Wikidata-Logo\" height=20 /> <a href="+ url_Wd +">https://de.m.wikidata.org/wiki/"+ json_Wd.displaytitle +"</a></footer> \
-// </details></div>";
-
+        anchorObject.innerHTML = "<div class=\"anchorannotation\">" + WpText + WsText + WdText + "</div>";
     }
 
     // Registering of function which should be available in Blenders nodeeditor

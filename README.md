@@ -14,7 +14,10 @@ Voraussetzungen
 
 Verwendung
 ----------
+* URLs für Wikipedia- und Wikisourceartikel sowie iFrame-Inhalt für Wikidata-Diagramm im Nodeeditor von Blender eintragen
+
 @TODO: Bitte ergänzen.
+
 
 Hinweise
 --------
